@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FindLyrics - Music Lyrics Finder & Embedder</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-dark text-slate-100">
+  <div id="app" class="flex flex-col h-screen overflow-hidden">
+    
+    <!-- Top Header -->
+    <header class="header flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60 backdrop-blur-md">
+      <div class="flex items-center gap-3">
+        <div class="logo-icon flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 shadow-lg shadow-indigo-500/20">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">FindLyrics</h1>
+          <p class="text-xs text-slate-400 font-medium">Automatic Lyrics Finder & Direct Tag Embedder</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div id="statBadges" class="hidden flex items-center gap-2 text-xs font-medium">
+          <span class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60" id="badgeTotal">0 Total</span>
+          <span class="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20" id="badgeMissing">0 Missing</span>
+          <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" id="badgeSynced">0 Synced</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Toolbar & Options -->
+    <section class="toolbar px-6 py-4 bg-slate-900/40 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3 flex-1 min-w-[320px]">
+        <button id="btnSelectFolder" class="btn btn-primary flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all shadow-md shadow-indigo-600/20 hover:shadow-indigo-600/40">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+          </svg>
+          Pilih Folder Musik
+        </button>
+        <div id="folderDisplay" class="text-xs font-mono text-slate-400 truncate max-w-md bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700/50">
+          Belum ada folder yang dipilih
+        </div>
+      </div>
+
+      <!-- Action & Settings -->
+      <div class="flex items-center gap-4">
+        <!-- Settings popover or inline options -->
+        <div class="flex items-center gap-3 text-xs text-slate-300 font-medium">
+          <label class="flex items-center gap-1.5 cursor-pointer hover:text-white select-none">
+            <input type="checkbox" id="chkRecursive" class="checkbox" checked />
+            <span>Rekursif</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer hover:text-white select-none">
+            <input type="checkbox" id="chkOverwrite" class="checkbox" />
+            <span>Overwrite Lirik</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer hover:text-white select-none" title="Jika lagu sudah memiliki lirik teks biasa, cari dan ganti dengan Synced Lyrics (LRC)">
+            <input type="checkbox" id="chkUpgradePlain" class="checkbox" checked />
+            <span class="text-indigo-300 font-semibold">Upgrade Plain ke Synced</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer hover:text-white select-none">
+            <input type="checkbox" id="chkSyncedOnly" class="checkbox" />
+            <span>Synced Saja</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer hover:text-white select-none" title="Otomatis gulir tabel mengikuti baris lagu yang sedang diproses">
+            <input type="checkbox" id="chkAutoFollow" class="checkbox" checked />
+            <span class="text-indigo-300 font-semibold flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+              </svg>
+              Auto Follow
+            </span>
+          </label>
+          <div class="flex items-center gap-1.5 pl-2 border-l border-slate-700">
+            <span>Toleransi:</span>
+            <input type="number" id="numTolerance" value="3" min="1" max="60" class="w-12 text-center py-1 rounded bg-slate-800 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-indigo-500" />
+            <span>detik</span>
+          </div>
+        </div>
+
+        <!-- Fetch Lyrics Action Button -->
+        <button id="btnFetchLyrics" disabled class="btn btn-action flex items-center gap-2 px-5 py-2.5 rounded-lg font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+          </svg>
+          <span>Fetch Lyrics</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Scanning Progress Banner (Shown during folder scanning) -->
+    <div id="scanProgressSection" class="hidden px-6 py-3.5 bg-indigo-950/40 border-b border-indigo-500/30 backdrop-blur-md animate-fade">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-indigo-200 flex items-center gap-2">
+              <span>Sedang Memindai Direktori Musik...</span>
+              <span id="scanCountBadge" class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-mono border border-indigo-500/30">0 file ditemukan</span>
+            </div>
+            <div id="scanCurrentFile" class="text-[11px] font-mono text-indigo-300/70 truncate max-w-xl mt-0.5">
+              Mempersiapkan pemindaian...
+            </div>
+          </div>
+        </div>
+        <div class="pulse-indicator flex items-center gap-1.5 text-xs text-indigo-300 font-medium">
+          <span class="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
+          <span>Scanning</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fetching Lyrics Progress Banner (Rich & Interactive) -->
+    <div id="fetchProgressSection" class="hidden px-6 py-4 bg-slate-900/90 border-b border-indigo-500/40 shadow-xl backdrop-blur-md animate-fade">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs font-bold text-white uppercase tracking-wider" id="fetchProgressTitle">Proses Fetch & Embed Lirik Sedang Berjalan</span>
+          <span id="fetchProgressPercent" class="text-xs font-mono font-bold text-indigo-400 ml-1">0%</span>
+          <span id="fetchWorkerBadge" class="ml-2 px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[10px] font-mono border border-indigo-500/30">10 threads</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <!-- Real-time statistics counters -->
+          <div class="flex items-center gap-2 text-[11px] font-mono">
+            <span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" id="statFetchSuccess">✓ 0 Berhasil</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700" id="statFetchSkipped">⏭ 0 Dilewati</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30" id="statFetchNotFound">❓ 0 Tidak Ada</span>
+            <span class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-400 border border-rose-500/30" id="statFetchError">❌ 0 Gagal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Animated Progress Bar -->
+      <div class="progress-track mb-2.5">
+        <div id="fetchProgressBar" class="progress-bar-fill"></div>
+      </div>
+
+      <!-- Current Processing Song Detail -->
+      <div class="flex items-center justify-between text-xs">
+        <div class="flex items-center gap-2 truncate max-w-2xl">
+          <span class="text-slate-500">Lagu saat ini:</span>
+          <span id="fetchCurrentSong" class="font-semibold text-slate-200 truncate">-</span>
+          <span id="fetchCurrentStatusMsg" class="text-[11px] font-mono text-indigo-400 ml-1"></span>
+        </div>
+        <div id="fetchCounterText" class="text-xs font-mono text-slate-400">
+          0 / 0 file
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search Sub-bar -->
+    <div class="px-6 py-2.5 bg-slate-900/20 border-b border-slate-800/60 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-1.5" id="filterTabs">
+        <button data-filter="all" class="tab-btn active">Semua (<span id="cntAll">0</span>)</button>
+        <button data-filter="missing" class="tab-btn">Belum Ada Lirik (<span id="cntMissing">0</span>)</button>
+        <button data-filter="synced" class="tab-btn">Synced LRC (<span id="cntSynced">0</span>)</button>
+        <button data-filter="plain" class="tab-btn">Plain Text (<span id="cntPlain">0</span>)</button>
+      </div>
+
+      <div class="search-wrapper">
+        <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input type="text" id="searchInput" placeholder="Cari judul atau artis..." class="search-input" />
+      </div>
+    </div>
+
+    <!-- Main Content: Tracks Table -->
+    <main class="flex-1 overflow-auto p-6 bg-slate-950" id="tableMainContainer">
+      <div id="emptyState" class="flex flex-col items-center justify-center h-full text-center py-16">
+        <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 mb-4 shadow-inner">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          </svg>
+        </div>
+        <h3 class="text-base font-semibold text-slate-200">Koleksi Musik Belum Dimuat</h3>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm">Klik tombol <strong class="text-indigo-400">Pilih Folder Musik</strong> di atas untuk memindai file FLAC, WAV, MP3, M4A, atau OGG.</p>
+      </div>
+
+      <div id="tableContainer" class="hidden table-container">
+        <table class="tracks-table">
+          <thead>
+            <tr class="border-b border-slate-800 bg-slate-900/95 text-slate-400 font-semibold uppercase tracking-wider">
+              <th class="py-3 px-4 w-12 text-center">#</th>
+              <th class="py-3 px-3 w-16 text-center">Format</th>
+              <th class="py-3 px-4 min-w-[220px]">Judul Lagu</th>
+              <th class="py-3 px-4 min-w-[150px]">Artis</th>
+              <th class="py-3 px-4 min-w-[140px]">Album</th>
+              <th class="py-3 px-3 w-20 text-center">Durasi</th>
+              <th class="py-3 px-4 min-w-[180px] text-center">Status Lirik</th>
+              <th class="py-3 px-4 w-28 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="trackTableBody" class="divide-y divide-slate-800/60 font-medium">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <!-- Modal Lyrics Preview -->
+    <div id="lyricsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-850">
+          <div>
+            <h3 id="modalSongTitle" class="text-sm font-bold text-white">Judul Lagu</h3>
+            <p id="modalSongArtist" class="text-xs text-slate-400">Artis Lagu</p>
+          </div>
+          <button id="modalClose" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+            ✕
+          </button>
+        </div>
+        <div class="flex-1 overflow-auto p-6 bg-slate-950 font-mono text-xs leading-relaxed text-slate-300 whitespace-pre-wrap select-text" id="modalLyricsContent">
+          Memuat lirik...
+        </div>
+        <div class="px-6 py-3 border-t border-slate-800 bg-slate-900 flex justify-end">
+          <button id="modalCloseBtn" class="px-4 py-1.5 rounded-lg bg-slate-800 text-slate-200 text-xs font-semibold hover:bg-slate-700 transition-colors">Tutup</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
